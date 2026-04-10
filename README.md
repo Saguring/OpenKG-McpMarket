@@ -1,4 +1,4 @@
-# MCP Marketplace
+# OpenKG-McpMarket
 
 一个用于发布和搜索 MCP 条目的轻量级 CLI 项目。
 
