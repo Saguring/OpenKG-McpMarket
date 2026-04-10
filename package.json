@@ -1,0 +1,36 @@
+{
+  "name": "mcp-marketplace",
+  "version": "1.0.0",
+  "description": "CLI MVP for publishing and searching MCP listings",
+  "type": "module",
+  "private": true,
+  "main": "dist/cli.js",
+  "bin": {
+    "mcp-marketplace": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "cli": "tsx src/cli.ts",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "dependencies": {
+    "argon2": "^0.44.0",
+    "better-sqlite3": "^11.10.0",
+    "chalk": "^5.6.2",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
