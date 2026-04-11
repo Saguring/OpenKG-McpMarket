@@ -1,14 +1,9 @@
-import Database from 'better-sqlite3';
-import fs from 'node:fs';
-import path from 'node:path';
+import sqlite3
+from pathlib import Path
 
-export interface DatabaseProvider {
-  db: Database.Database;
-  runMigrations(): void;
-}
 
-const schemaStatements = [
-  `
+SCHEMA_STATEMENTS = [
+    """
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
@@ -16,16 +11,16 @@ const schemaStatements = [
       display_name TEXT NOT NULL,
       created_at TEXT NOT NULL
     )
-  `,
-  `
+    """,
+    """
     CREATE TABLE IF NOT EXISTS sessions (
       id TEXT PRIMARY KEY,
       user_id TEXT NOT NULL,
       created_at TEXT NOT NULL,
       FOREIGN KEY (user_id) REFERENCES users(id)
     )
-  `,
-  `
+    """,
+    """
     CREATE TABLE IF NOT EXISTS mcp_listings (
       id TEXT PRIMARY KEY,
       owner_id TEXT NOT NULL,
@@ -47,23 +42,19 @@ const schemaStatements = [
       deleted_at TEXT,
       FOREIGN KEY (owner_id) REFERENCES users(id)
     )
-  `,
-];
+    """,
+]
 
-export function createDatabaseProvider(databaseFilePath: string): DatabaseProvider {
-  const directory = path.dirname(databaseFilePath);
-  fs.mkdirSync(directory, { recursive: true });
 
-  const db = new Database(databaseFilePath);
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
+def create_connection(database_file_path: Path) -> sqlite3.Connection:
+    database_file_path.parent.mkdir(parents=True, exist_ok=True)
+    connection = sqlite3.connect(database_file_path)
+    connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
+    return connection
 
-  return {
-    db,
-    runMigrations() {
-      for (const statement of schemaStatements) {
-        db.prepare(statement).run();
-      }
-    },
-  };
-}
+
+def run_migrations(connection: sqlite3.Connection) -> None:
+    for statement in SCHEMA_STATEMENTS:
+        connection.execute(statement)
+    connection.commit()

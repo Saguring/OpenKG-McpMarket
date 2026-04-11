@@ -1,0 +1,9 @@
+[project]
+name = "OpenKG-McpMarket"
+version = "1.0.0"
+description = "CLI MVP for publishing and searching MCP listings"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

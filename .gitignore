@@ -1,12 +1,6 @@
-node_modules/
-dist/
+.pytest_cache/
+__pycache__/
+*.pyc
 .local/
-*.db
-*.sqlite
-*.sqlite3
-coverage/
-.DS_Store
-.env
-.env.local
-*.log
-.tmp/
+dist/
+node_modules/
