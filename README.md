@@ -2,7 +2,7 @@
 
 一个用于发布和搜索 MCP 条目的轻量级 CLI 项目。
 
-当前版本主要聚焦于 MCP 元数据的发布与检索，MCP 服务的运行、托管与探测能力暂未纳入实现范围。
+当前版本聚焦于 MCP 元数据的发布、检索和本地会话管理，不包含 MCP 服务的运行、托管和在线探测能力。
 
 ## 功能
 
@@ -11,33 +11,76 @@
 - 搜索公开 MCP 条目
 - 查看当前用户发布的条目
 - 删除当前用户自己的条目
-
-## 技术栈
-
-- Python 3.12+
-- SQLite
-- argparse
-- hashlib.pbkdf2_hmac
-- pytest
+- 将登录状态持久化到本地 CLI 状态文件
 
 ## 安装
 
+项目要求 Python `3.12+`。
+
+推荐使用虚拟环境：
+
 ```bash
-python3 -m pip install pytest
+cd OpenKG-McpMarket
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip pytest
 ```
 
-## 使用方式
+如果只运行 CLI，不执行测试，也可以不安装 `pytest`。
+
+## Quick Start
+
+```bash
+cd OpenKG-McpMarket
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -U pip pytest
+
+python -m src.cli register --email alice@example.com --password password123 --name Alice
+python -m src.cli login --email alice@example.com --password password123
+python -m src.cli search --query ner
+```
+
+## 配置
+
+项目默认不需要 `.env` 或外部服务配置。
+
+可选环境变量：
+
+- `XDG_DATA_HOME`：指定应用数据目录；设置后数据将写入 `$XDG_DATA_HOME/OpenKG-McpMarket`
+
+默认数据目录：
+
+```bash
+~/.local/share/OpenKG-McpMarket
+```
+
+其中会生成：
+
+- `marketplace.db`
+- `cli-state.json`
+
+## 使用
+
+```bash
+python3 -m src.cli --help
+```
 
 注册用户：
 
 ```bash
-python3 -m src.cli register --email alice@example.com --password password123 --name Alice
+python3 -m src.cli register \
+  --email alice@example.com \
+  --password password123 \
+  --name Alice
 ```
 
 登录：
 
 ```bash
-python3 -m src.cli login --email alice@example.com --password password123
+python3 -m src.cli login \
+  --email alice@example.com \
+  --password password123
 ```
 
 查看当前用户：
@@ -57,6 +100,8 @@ python3 -m src.cli upload \
   --auth "none" \
   --source-type endpoint \
   --endpoint "https://example.com/mcp" \
+  --source-url "https://github.com/example/deepke-ner-mcp" \
+  --homepage-url "https://example.com/deepke-ner-mcp" \
   --tags "deepke,ner" \
   --tasks "ner"
 ```
@@ -72,7 +117,8 @@ python3 -m src.cli upload \
   --auth "none" \
   --source-type package \
   --package-name "my-mcp-package" \
-  --package-registry "npm"
+  --package-registry "npm" \
+  --source-url "https://github.com/example/my-mcp-package"
 ```
 
 搜索条目：
@@ -81,10 +127,10 @@ python3 -m src.cli upload \
 python3 -m src.cli search --query ner
 ```
 
-按任务筛选：
+组合筛选：
 
 ```bash
-python3 -m src.cli search --task ner
+python3 -m src.cli search --query ner --task ner --transport streamable-http
 ```
 
 查看自己发布的 MCP：
@@ -105,21 +151,10 @@ python3 -m src.cli delete --id <listing-id>
 python3 -m src.cli logout
 ```
 
-## 数据目录
-
-应用数据默认保存在以下位置：
-
-- `$XDG_DATA_HOME/OpenKG-McpMarket`
-- 如果未设置 `XDG_DATA_HOME`，则使用 `~/.local/share/OpenKG-McpMarket`
-- 如果显式传入 `AppContext(base_dir=...)`，则使用 `<base_dir>/OpenKG-McpMarket`
-
 ## 项目结构
 
 ```text
 src/
-  app_context.py
-  cli.py
-  cli_format.py
   domain/
   infrastructure/
   repositories/
@@ -134,5 +169,6 @@ tests/
 ## 开发
 
 ```bash
+python3 -m pip install -U pytest
 python3 -m pytest
 ```
